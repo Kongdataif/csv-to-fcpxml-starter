@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
-"""timeline.csv와 Media 폴더를 Final Cut Pro용 FCPXML로 변환합니다."""
+"""timeline.csv와 Media 폴더를 Final Cut Pro용 FCPXML로 변환합니다.
+
+기본 폴더 구조::
+
+    my-video/
+    ├── timeline.csv   # 장면 순서와 편집 정보
+    └── Media/         # CSV의 '파일' 열에 적은 사진·영상
+
+기본 실행::
+
+    python3 run.py my-video --layout portrait --fit fit
+"""
 
 from __future__ import annotations
 
@@ -306,10 +317,41 @@ def build(project: Path, layout: str, fit: str) -> Path:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="timeline.csv + Media/ → Final Cut Pro FCPXML")
-    parser.add_argument("project", nargs="?", default="my-video", help="프로젝트 폴더 (기본: my-video)")
-    parser.add_argument("--layout", choices=("portrait", "landscape", "both"), default="portrait")
-    parser.add_argument("--fit", choices=("fit", "fill"), default="fit", help="fit=전체 보기, fill=화면 채우기")
+    parser = argparse.ArgumentParser(
+        description="프로젝트 폴더의 timeline.csv와 Media/를 Final Cut Pro용 FCPXML로 변환합니다.",
+        epilog=(
+            "예: python3 run.py my-video --layout both --fit fit\n"
+            "결과: my-video/output/portrait.fcpxml 및 landscape.fcpxml"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    # 위치 인자: CSV 파일 자체가 아니라 CSV와 Media가 함께 있는 폴더를 받습니다.
+    parser.add_argument(
+        "project",
+        nargs="?",
+        default="my-video",
+        help="timeline.csv와 Media/가 들어 있는 프로젝트 폴더 (기본값: my-video)",
+    )
+    # 출력 해상도 선택. both는 두 FCPXML을 같은 output 폴더에 만듭니다.
+    parser.add_argument(
+        "--layout",
+        choices=("portrait", "landscape", "both"),
+        default="portrait",
+        help=(
+            "출력 화면: portrait=세로 1080x1920(기본값), "
+            "landscape=가로 1920x1080, both=세로와 가로 모두 생성"
+        ),
+    )
+    # 원본과 출력 화면의 비율이 다를 때 적용할 공통 배치 방식입니다.
+    parser.add_argument(
+        "--fit",
+        choices=("fit", "fill"),
+        default="fit",
+        help=(
+            "화면 맞춤: fit=원본 전체 표시·여백 가능(기본값), "
+            "fill=화면을 채움·가장자리 잘림 가능"
+        ),
+    )
     args = parser.parse_args()
     project = Path(args.project).expanduser().resolve()
     if not project.is_dir():
