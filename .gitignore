@@ -1,0 +1,33 @@
+.DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# User projects and generated outputs
+projects/
+**/Generated/
+**/.build_media/
+**/.fcpxml_input_*/
+
+# User media should not be committed accidentally
+**/Media/*
+**/Audio/*
+!**/Media/README.md
+!**/Audio/README.md
+*.mov
+*.mp4
+*.m4v
+*.mkv
+*.avi
+*.wav
+*.m4a
+*.mp3
+
+# Editor and local artifacts
+.idea/
+*.log
+*.zip

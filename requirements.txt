@@ -1,0 +1,2 @@
+# Runtime Python packages: none (CSV and XLSX reading both use the standard library).
+# FFmpeg/ffprobe are operating-system commands, not pip packages.

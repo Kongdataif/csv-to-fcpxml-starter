@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fcpxml>
+<fcpxml version="1.14">
+  <resources>
+    <format id="rProjectFormat" name="Project 1920x1080 30p" frameDuration="1/30s" width="1920" height="1080" colorSpace="1-1-1 (Rec. 709)" />
+    <format id="rFormat001" name="Source intro.mp4" frameDuration="1/30s" width="1920" height="1080" />
+    <asset id="rAsset001" name="intro.mp4" start="0s" duration="2s" hasVideo="1" videoSources="1" format="rFormat001" hasAudio="1" audioSources="1" audioChannels="1" audioRate="48000">
+      <media-rep kind="original-media" src="./Media/intro.mp4" />
+    </asset>
+    <format id="rFormat002" name="Source clip_002_photo_4f12cc59ce30.mp4" frameDuration="1/30s" width="1920" height="1080" />
+    <asset id="rAsset002" name="clip_002_photo_4f12cc59ce30.mp4" start="0s" duration="3s" hasVideo="1" videoSources="1" format="rFormat002">
+      <media-rep kind="original-media" src="./.build_media/clip_002_photo_4f12cc59ce30.mp4" />
+    </asset>
+    <format id="rFormat003" name="Source outro.mov" frameDuration="1/30s" width="1920" height="1080" />
+    <asset id="rAsset003" name="outro.mov" start="0s" duration="5s" hasVideo="1" videoSources="1" format="rFormat003" hasAudio="1" audioSources="1" audioChannels="1" audioRate="48000">
+      <media-rep kind="original-media" src="./Media/outro.mov" />
+    </asset>
+  </resources>
+  <event name="CSV Automation">
+    <project name="quick_start">
+      <sequence format="rProjectFormat" duration="8s" tcStart="0s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
+        <spine>
+          <asset-clip ref="rAsset001" name="intro.mp4" offset="0s" start="0s" duration="2s" srcEnable="all" audioRole="dialogue">
+            <adjust-conform type="fit" />
+          </asset-clip>
+          <asset-clip ref="rAsset002" name="clip_002_photo_4f12cc59ce30.mp4" offset="2s" start="0s" duration="3s" srcEnable="video">
+            <adjust-conform type="fit" />
+          </asset-clip>
+          <asset-clip ref="rAsset003" name="outro.mov" offset="5s" start="1s" duration="3s" srcEnable="video">
+            <adjust-conform type="fit" />
+          </asset-clip>
+        </spine>
+      </sequence>
+    </project>
+  </event>
+</fcpxml>

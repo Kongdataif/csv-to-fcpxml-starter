@@ -1,0 +1,4 @@
+﻿id,kind,file,timeline_in,timeline_out,source_in,source_out,conform,include_audio,volume_db,notes,enabled
+D01,video,Media/scene_01.mp4,00:00:00.000,00:00:02.000,00:00:00.000,00:00:02.000,fit,false,0,합성 영상,true
+D02,image,Media/scene_02.png,00:00:02.000,00:00:04.000,,,fill,false,0,합성 사진,true
+D03,video,Media/scene_03.mp4,00:00:04.000,00:00:06.000,00:00:00.000,00:00:02.000,fit,false,0,합성 영상,true

@@ -1,0 +1,193 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1. 세로·가로 입력 검사",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "both",
+        "--validate-only"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "2. 세로·가로 미리보기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "both",
+        "--preview-only"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "3. 세로·가로 XML 만들기 (추천)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "both"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "4. 세로 9:16 XML 만들기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "portrait"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "5. 세로 9:16 만들고 Final Cut에서 열기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "portrait",
+        "--open"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "6. 가로 16:9 XML 만들기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "landscape"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "7. 가로 16:9 만들고 Final Cut에서 열기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "landscape",
+        "--open"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "선택: 세로·가로 자막 없는 XML 만들기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "both",
+        "--no-subtitles"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "선택: 세로·가로 접근성 Caption XML 만들기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "both",
+        "--subtitle-mode",
+        "caption"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "선택: 세로·가로 Title·Caption·SRT 모두 만들기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "make_xml.py",
+        "${input:projectDir}",
+        "--layout",
+        "both",
+        "--subtitle-mode",
+        "both"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Mac: 기존 XML을 Final Cut에서 열기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "open_in_final_cut.py",
+        "${input:xmlPath}"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "고급: project.json 입력 검사",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "csv_to_fcpxml.py",
+        "--config",
+        "${input:configPath}",
+        "--validate-only",
+        "--restrict-to-project-root"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "고급: project.json으로 XML 만들기",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": [
+        "csv_to_fcpxml.py",
+        "--config",
+        "${input:configPath}",
+        "--restrict-to-project-root"
+      ],
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "projectDir",
+      "type": "promptString",
+      "description": "timeline.csv 또는 timeline.xlsx와 Media/가 있는 영상 폴더",
+      "default": "projects/my-first-video"
+    },
+    {
+      "id": "configPath",
+      "type": "promptString",
+      "description": "project.json 경로",
+      "default": "projects/my-first-video/project.json"
+    },
+    {
+      "id": "xmlPath",
+      "type": "promptString",
+      "description": "Final Cut에서 열 FCPXML 경로",
+      "default": "projects/my-first-video/Generated/vertical_9x16/my-first-video_vertical_9x16_with_titles.fcpxml"
+    }
+  ]
+}

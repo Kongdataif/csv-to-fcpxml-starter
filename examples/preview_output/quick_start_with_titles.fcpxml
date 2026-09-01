@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fcpxml>
+<fcpxml version="1.14">
+  <resources>
+    <format id="rProjectFormat" name="Project 1920x1080 30p" frameDuration="1/30s" width="1920" height="1080" colorSpace="1-1-1 (Rec. 709)" />
+    <effect id="rBasicTitle" name="Basic Title" uid=".../Titles.localized/Bumper:Opener.localized/Basic Title.localized/Basic Title.moti" />
+    <format id="rFormat001" name="Source intro.mp4" frameDuration="1/30s" width="1920" height="1080" />
+    <asset id="rAsset001" name="intro.mp4" start="0s" duration="2s" hasVideo="1" videoSources="1" format="rFormat001" hasAudio="1" audioSources="1" audioChannels="1" audioRate="48000">
+      <media-rep kind="original-media" src="./Media/intro.mp4" />
+    </asset>
+    <format id="rFormat002" name="Source clip_002_photo_4f12cc59ce30.mp4" frameDuration="1/30s" width="1920" height="1080" />
+    <asset id="rAsset002" name="clip_002_photo_4f12cc59ce30.mp4" start="0s" duration="3s" hasVideo="1" videoSources="1" format="rFormat002">
+      <media-rep kind="original-media" src="./.build_media/clip_002_photo_4f12cc59ce30.mp4" />
+    </asset>
+    <format id="rFormat003" name="Source outro.mov" frameDuration="1/30s" width="1920" height="1080" />
+    <asset id="rAsset003" name="outro.mov" start="0s" duration="5s" hasVideo="1" videoSources="1" format="rFormat003" hasAudio="1" audioSources="1" audioChannels="1" audioRate="48000">
+      <media-rep kind="original-media" src="./Media/outro.mov" />
+    </asset>
+  </resources>
+  <event name="CSV Automation">
+    <project name="quick_start">
+      <sequence format="rProjectFormat" duration="8s" tcStart="0s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
+        <spine>
+          <asset-clip ref="rAsset001" name="intro.mp4" offset="0s" start="0s" duration="2s" srcEnable="all" audioRole="dialogue">
+            <adjust-conform type="fit" />
+            <title ref="rBasicTitle" name="subtitle 01 · Basic Title" lane="1" offset="0s" start="3600s" duration="2s" role="titles">
+              <text><text-style ref="tsT001b">첫 장면입니다</text-style></text>
+              <text-style-def id="tsT001b">
+                <text-style font="Apple SD Gothic Neo" fontSize="44" fontFace="Regular" fontColor="1 1 1 1" bold="0" strokeColor="0 0 0 1" strokeWidth="-3" alignment="center" shadowColor="0 0 0 0.75" shadowOffset="2 -2" shadowBlurRadius="3" />
+              </text-style-def>
+              <adjust-transform position="0 -37.5" />
+            </title>
+          </asset-clip>
+          <asset-clip ref="rAsset002" name="clip_002_photo_4f12cc59ce30.mp4" offset="2s" start="0s" duration="3s" srcEnable="video">
+            <adjust-conform type="fit" />
+            <title ref="rBasicTitle" name="subtitle 02 · Basic Title" lane="1" offset="0s" start="3600s" duration="3s" role="titles">
+              <text><text-style ref="tsT002b">사진을 3초 보여 줍니다</text-style></text>
+              <text-style-def id="tsT002b">
+                <text-style font="Apple SD Gothic Neo" fontSize="44" fontFace="Regular" fontColor="1 1 1 1" bold="0" strokeColor="0 0 0 1" strokeWidth="-3" alignment="center" shadowColor="0 0 0 0.75" shadowOffset="2 -2" shadowBlurRadius="3" />
+              </text-style-def>
+              <adjust-transform position="0 -37.5" />
+            </title>
+          </asset-clip>
+          <asset-clip ref="rAsset003" name="outro.mov" offset="5s" start="1s" duration="3s" srcEnable="video">
+            <adjust-conform type="fit" />
+            <title ref="rBasicTitle" name="subtitle 03 · Basic Title" lane="1" offset="1s" start="3600s" duration="3s" role="titles">
+              <text><text-style ref="tsT003b">마지막 3초 구간입니다</text-style></text>
+              <text-style-def id="tsT003b">
+                <text-style font="Apple SD Gothic Neo" fontSize="44" fontFace="Regular" fontColor="1 1 1 1" bold="0" strokeColor="0 0 0 1" strokeWidth="-3" alignment="center" shadowColor="0 0 0 0.75" shadowOffset="2 -2" shadowBlurRadius="3" />
+              </text-style-def>
+              <adjust-transform position="0 -37.5" />
+            </title>
+          </asset-clip>
+        </spine>
+      </sequence>
+    </project>
+  </event>
+</fcpxml>

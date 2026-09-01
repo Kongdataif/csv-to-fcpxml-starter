@@ -1,0 +1,19 @@
+{
+  "event_name": "CSV Automation",
+  "project_name": "My CSV Rough Cut",
+  "output_basename": "my_roughcut",
+  "fcpxml_version": "1.14",
+  "width": 1920,
+  "height": 1080,
+  "fps": "30",
+  "color_space": "1-1-1 (Rec. 709)",
+  "audio_rate": "48k",
+  "timeline_csv": "timeline.csv",
+  "output_dir": "Generated",
+  "path_mode": "relative",
+  "image_mode": "video-cache",
+  "image_background": "#000000",
+  "bgm": null,
+  "subtitles": {},
+  "captions": {}
+}
