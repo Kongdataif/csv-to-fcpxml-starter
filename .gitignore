@@ -3,6 +3,8 @@
 __pycache__/
 *.pyc
 my-video/output/
+my-video/timeline.xlsx
+my-video/timeline.numbers
 my-video/Media/*
 !my-video/Media/여기에_사진과_영상을_넣으세요.txt
 *.mov

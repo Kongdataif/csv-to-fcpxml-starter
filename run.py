@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""timeline.csv와 Media 폴더를 Final Cut Pro용 FCPXML로 변환합니다.
+"""timeline.csv 또는 timeline.xlsx와 Media 폴더를 FCPXML로 변환합니다.
 
 기본 폴더 구조::
 
     my-video/
-    ├── timeline.csv   # 장면 순서와 편집 정보
+    ├── timeline.csv   # 또는 timeline.xlsx
     └── Media/         # CSV의 '파일' 열에 적은 사진·영상
 
 기본 실행::
@@ -125,10 +125,74 @@ def probe(path: Path) -> tuple[Fraction, int, int, Fraction, bool, int, int]:
         raise UserError(f"영상 정보를 확인하지 못했습니다: {path.name}") from exc
 
 
-def read_timeline(project: Path) -> list[dict[str, str]]:
+def xlsx_cell_text(value: object) -> str:
+    """Excel 셀 값을 기존 CSV 입력과 같은 문자열로 바꿉니다."""
+
+    if value is None:
+        return ""
+    if hasattr(value, "hour") and hasattr(value, "minute") and hasattr(value, "second"):
+        microsecond = int(getattr(value, "microsecond", 0))
+        base = f"{value.hour:02d}:{value.minute:02d}:{value.second:02d}"
+        return f"{base}.{microsecond // 1000:03d}" if microsecond else base
+    if isinstance(value, float):
+        return str(int(value)) if value.is_integer() else str(value)
+    return str(value).strip()
+
+
+def convert_xlsx(source: Path, target: Path) -> Path:
+    """Excel의 timeline 시트(없으면 첫 시트)를 UTF-8 CSV로 변환합니다."""
+
+    try:
+        from openpyxl import load_workbook
+    except ImportError as exc:
+        raise UserError(
+            "Excel 입력에는 openpyxl이 필요합니다. "
+            "`python3 -m pip install -r requirements.txt`를 실행하세요."
+        ) from exc
+    try:
+        workbook = load_workbook(source, read_only=True, data_only=True)
+    except Exception as exc:
+        raise UserError(f"Excel 파일을 읽지 못했습니다: {source.name}: {exc}") from exc
+    try:
+        sheet = workbook["timeline"] if "timeline" in workbook.sheetnames else workbook.active
+        rows = [[xlsx_cell_text(value) for value in row] for row in sheet.iter_rows(values_only=True)]
+    finally:
+        workbook.close()
+    while rows and not any(rows[-1]):
+        rows.pop()
+    if not rows:
+        raise UserError(f"Excel 시트가 비어 있습니다: {source.name}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open("w", encoding="utf-8-sig", newline="") as handle:
+        csv.writer(handle).writerows(rows)
+    print(f"입력 변환: {source.name} [{sheet.title}] → {target}")
+    return target
+
+
+def prepare_timeline(project: Path) -> Path:
+    """CSV는 그대로 쓰고 XLSX는 output/timeline_converted.csv로 변환합니다."""
+
     csv_path = project / "timeline.csv"
-    if not csv_path.is_file():
-        raise UserError(f"파일이 없습니다: {csv_path}")
+    xlsx_path = project / "timeline.xlsx"
+    numbers_path = project / "timeline.numbers"
+    existing = [path for path in (csv_path, xlsx_path) if path.is_file()]
+    if len(existing) > 1:
+        raise UserError("timeline.csv와 timeline.xlsx가 모두 있습니다. 사용할 파일 하나만 남기세요.")
+    if csv_path.is_file():
+        return csv_path
+    if xlsx_path.is_file():
+        return convert_xlsx(xlsx_path, project / "output" / "timeline_converted.csv")
+    if numbers_path.exists():
+        raise UserError(
+            "timeline.numbers는 직접 읽을 수 없습니다. Numbers에서 "
+            "파일 > 다음으로 내보내기 > Excel을 선택해 timeline.xlsx로 저장하세요."
+        )
+    raise UserError(
+        f"{project}에 timeline.csv 또는 timeline.xlsx가 없습니다."
+    )
+
+
+def read_timeline(csv_path: Path) -> list[dict[str, str]]:
     try:
         with csv_path.open(encoding="utf-8-sig", newline="") as handle:
             reader = csv.DictReader(handle)
@@ -146,12 +210,12 @@ def read_timeline(project: Path) -> list[dict[str, str]]:
     return rows
 
 
-def load_clips(project: Path) -> list[Clip]:
+def load_clips(project: Path, timeline_path: Path) -> list[Clip]:
     media_dir = project / "Media"
     if not media_dir.is_dir():
         raise UserError(f"폴더가 없습니다: {media_dir}")
     clips: list[Clip] = []
-    for row_number, row in enumerate(read_timeline(project), start=2):
+    for row_number, row in enumerate(read_timeline(timeline_path), start=2):
         name = row["파일"]
         if Path(name).name != name or name in {".", ".."}:
             raise UserError(f"CSV {row_number}행: '파일'에는 Media 폴더 안의 파일명만 적으세요.")
@@ -248,13 +312,13 @@ def add_title(parent: ET.Element, text_value: str, duration: Fraction, source_in
     ET.SubElement(title, "adjust-transform", {"position": "0 -37.5"})
 
 
-def build(project: Path, layout: str, fit: str) -> Path:
+def build(project: Path, layout: str, fit: str, timeline_path: Path) -> Path:
     portrait = layout == "portrait"
     width, height = (1080, 1920) if portrait else (1920, 1080)
     output_dir = project / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
     xml_path = output_dir / f"{layout}.fcpxml"
-    clips = load_clips(project)
+    clips = load_clips(project, timeline_path)
 
     root = ET.Element("fcpxml", {"version": "1.14"})
     resources = ET.SubElement(root, "resources")
@@ -318,7 +382,7 @@ def build(project: Path, layout: str, fit: str) -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="프로젝트 폴더의 timeline.csv와 Media/를 Final Cut Pro용 FCPXML로 변환합니다.",
+        description="프로젝트 폴더의 timeline.csv 또는 timeline.xlsx와 Media/를 FCPXML로 변환합니다.",
         epilog=(
             "예: python3 run.py my-video --layout both --fit fit\n"
             "결과: my-video/output/portrait.fcpxml 및 landscape.fcpxml"
@@ -330,7 +394,7 @@ def main() -> int:
         "project",
         nargs="?",
         default="my-video",
-        help="timeline.csv와 Media/가 들어 있는 프로젝트 폴더 (기본값: my-video)",
+        help="timeline.csv 또는 timeline.xlsx와 Media/가 들어 있는 폴더 (기본값: my-video)",
     )
     # 출력 해상도 선택. both는 두 FCPXML을 같은 output 폴더에 만듭니다.
     parser.add_argument(
@@ -358,8 +422,9 @@ def main() -> int:
         print(f"오류: 프로젝트 폴더가 없습니다: {project}", file=sys.stderr)
         return 1
     try:
+        timeline_path = prepare_timeline(project)
         layouts = ("portrait", "landscape") if args.layout == "both" else (args.layout,)
-        outputs = [build(project, layout, args.fit) for layout in layouts]
+        outputs = [build(project, layout, args.fit, timeline_path) for layout in layouts]
     except UserError as exc:
         print(f"오류: {exc}", file=sys.stderr)
         return 1
