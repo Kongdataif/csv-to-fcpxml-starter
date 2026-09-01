@@ -1,3 +1,0 @@
-﻿id,kind,file,timeline_in,timeline_out,source_in,source_out,conform,include_audio,volume_db,notes,enabled
-V01,video,Media/replace_with_your_video.mp4,00:00:00.000,00:00:04.000,00:00:00.000,00:00:04.000,fit,false,0,첫 장면,true
-I01,image,Media/replace_with_your_photo.png,00:00:04.000,00:00:07.000,,,fill,false,0,사진 3초,true
