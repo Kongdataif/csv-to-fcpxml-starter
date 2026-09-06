@@ -21,6 +21,46 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           cache: pip
-      - run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg libxml2-utils
       - run: python -m pip install -r requirements.txt
+      - name: Verify Colab uses the same core code
+        run: |
+          python - <<'PY'
+          import ast, json, subprocess
+          from pathlib import Path
+          notebook = json.loads(Path('colab.ipynb').read_text(encoding='utf-8'))
+          source = next(c['source'] for c in notebook['cells'] if c['cell_type'] == 'code')
+          assignments = [n for n in ast.parse(''.join(source)).body if isinstance(n, ast.Assign)]
+          rev = next(ast.literal_eval(n.value) for n in assignments
+                     if any(isinstance(t, ast.Name) and t.id == 'CORE_REV' for t in n.targets))
+          if not isinstance(rev, str) or len(rev) != 40 or any(c not in '0123456789abcdef' for c in rev):
+              raise SystemExit('CORE_REV must be a full commit SHA')
+          subprocess.run(['git', 'fetch', '--no-tags', '--depth=1', 'origin', rev], check=True)
+          for name in ('run.py', 'colab_support.py', 'requirements.txt'):
+              pinned = subprocess.check_output(['git', 'show', rev + ':' + name])
+              if pinned != Path(name).read_bytes():
+                  raise SystemExit('Colab core does not match tested code: ' + name)
+          print('Colab core matches:', rev)
+          PY
+      - name: Fetch and verify the FCPXML 1.14 DTD for tests
+        run: |
+          python - <<'PY'
+          import base64, hashlib, json, os
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+          # Apple DTD mirrored by OpenFCPXMLKit; verify exact Git blob bytes.
+          # Download only for tests. Do not commit or redistribute the DTD.
+          expected = '3f1b6182a903d4a49ec74be4c95033f921450626'
+          url = 'https://api.github.com/repos/TheAcharya/OpenFCPXMLKit/git/blobs/' + expected
+          with urlopen(Request(url, headers={'User-Agent': 'fcpxml-regression-tests'}), timeout=60) as response:
+              payload = json.load(response)
+          data = base64.b64decode(payload['content'])
+          actual = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+          if actual != expected or b'#FIXED "1.14"' not in data:
+              raise SystemExit('FCPXML DTD identity/version mismatch')
+          (Path(os.environ['RUNNER_TEMP']) / 'fcpxml-1.14.dtd').write_bytes(data)
+          print('FCPXML 1.14 DTD verified:', actual)
+          PY
       - run: python -m unittest discover -s tests -v
+        env:
+          FCPXML_DTD: ${{ runner.temp }}/fcpxml-1.14.dtd

@@ -339,13 +339,13 @@ def media_uri(path: Path, xml_path: Path) -> str:
 def add_title(parent: ET.Element, clip: Clip, index: int, portrait: bool) -> None:
     title = ET.SubElement(parent, "title", {"ref": "rBasicTitle", "name": f"Title {index:02d}", "lane": "1",
         "offset": xml_time(clip.source_in), "start": "3600s", "duration": xml_time(clip.duration), "role": "titles"})
-    # Intrinsic adjustments precede text/text-style-def in FCPXML's title content model.
-    ET.SubElement(title, "adjust-transform", {"position": "0 -37.5"})
+    # FCPXML 1.14: text and text-style-def precede intrinsic video adjustments.
     text = ET.SubElement(title, "text")
     ET.SubElement(text, "text-style", {"ref": f"ts{index:03d}"}).text = clip.title
     style_def = ET.SubElement(title, "text-style-def", {"id": f"ts{index:03d}"})
     ET.SubElement(style_def, "text-style", {"font": "Apple SD Gothic Neo", "fontSize": "54" if portrait else "44",
         "fontFace": "Regular", "fontColor": "1 1 1 1", "alignment": "center", "strokeColor": "0 0 0 1", "strokeWidth": "-3"})
+    ET.SubElement(title, "adjust-transform", {"position": "0 -37.5"})
 
 
 def build(project: Path, layout: str, fit: str, timeline_path: Path, output: Path | None = None) -> Path:
@@ -409,6 +409,15 @@ def validate_xml(path: Path, width: int, height: int) -> None:
         uri = media.get("src", "")
         if urllib.parse.urlsplit(uri).scheme or not (path.parent / urllib.parse.unquote(uri)).is_file():
             raise UserError(f"미디어 상대 경로 검증 실패: {uri}")
+    # This generator emits exactly one text block, one style definition and
+    # one transform. Check this narrow contract, not a hand-written full DTD.
+    # A well-formed XML document alone cannot catch invalid child ordering.
+    for title in root.iter("title"):
+        if [child.tag for child in title] != ["text", "text-style-def", "adjust-transform"]:
+            raise UserError(
+                f"FCPXML 타이틀 구성 오류 ({title.get('name', 'title')}): "
+                "text → text-style-def → adjust-transform 순서가 필요합니다."
+            )
     cursor = Fraction(0)
     sequence = root.find("event/project/sequence")
     if sequence is None:
