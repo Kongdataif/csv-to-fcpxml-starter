@@ -194,7 +194,7 @@ class BuildTests(ProjectTest):
         self.assertEqual({p.name for p in outputs}, {'portrait.fcpxml', 'landscape.fcpxml'})
         for xml in outputs:
             root = ET.parse(xml).getroot()
-            self.assertEqual([c.tag for c in root.find('.//title')], ['adjust-transform', 'text', 'text-style-def'])
+            self.assertEqual([c.tag for c in root.find('.//title')], ['text', 'text-style-def', 'adjust-transform'])
             self.assertEqual(root.find('.//sequence').get('duration'), '1/10s')
         self.assertEqual(app.verified_result(self.project)['layout'], 'both')
 
