@@ -3,7 +3,7 @@
 기획표 순서대로 사진·영상과 화면 자막을 배치한 **편집 가능한 타임라인 초안**을 만듭니다.
 생성한 FCPXML을 Mac의 Final Cut Pro로 가져와 편집합니다. 완성 영상 내보내기나 CSV와 Final Cut Pro의 양방향 동기화는 지원하지 않습니다.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Kongdataif/csv-to-fcpxml-starter/blob/stabilize/blog-0.6.2/colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Kongdataif/csv-to-fcpxml-starter/blob/main/colab.ipynb)
 
 [CSV 양식](templates/timeline.csv) · [Excel 양식](templates/timeline.xlsx)
 
@@ -23,6 +23,7 @@
 
 영상은 시작·끝을 모두 입력하거나 모두 비웁니다. 사진은 영상 시작·끝을 비우고 사진 표시 시간만 입력합니다.
 시간은 초 숫자, `MM:SS`, `HH:MM:SS.mmm` 형식으로 적습니다. **완성 영상의 배치 시간이 아니라 원본에서 가져올 구간**입니다.
+`1`과 `00:00:01`은 모두 원본의 1초 지점입니다. `12.5`처럼 소수 초도 사용할 수 있습니다. `1초`처럼 단위는 붙이지 않습니다.
 장면은 기획표 위에서 아래 순서대로 이어집니다.
 
 ```csv
@@ -39,6 +40,8 @@ outro.mp4,00:00:02.000,00:00:07.000,,마지막 장면,끄기
 CSV는 **UTF-8**로 저장하세요. Excel은 `timeline` 시트를 읽고, 없으면 활성 시트를 사용합니다.
 Excel에는 수식·오류·날짜 셀 대신 값을 직접 입력합니다.
 Numbers에서는 **파일 > 다음으로 내보내기 > Excel**로 `.xlsx`를 만듭니다. `.numbers`는 직접 읽지 않습니다.
+Numbers에서 CSV로 내보낼 때는 **‘표 이름 포함’을 해제**하고 기획표 한 개만 내보내세요. CSV 첫 줄은 `파일,영상 원본 시작,…`이어야 합니다.
+첫 줄에 `표 1` 같은 표 이름이나 빈 줄이 들어 있으면 제거한 뒤 업로드합니다. [Numbers 내보내기 안내](https://support.apple.com/ko-kr/guide/numbers/tan3b922d4ad/mac)
 
 ## 2. Google Colab에서 실행
 
@@ -73,7 +76,7 @@ Homebrew를 사용하는 Mac에서는 다음과 같이 준비합니다.
 
 ```bash
 brew install ffmpeg
-git clone --branch stabilize/blog-0.6.2 https://github.com/Kongdataif/csv-to-fcpxml-starter.git
+git clone --branch main https://github.com/Kongdataif/csv-to-fcpxml-starter.git
 cd csv-to-fcpxml-starter
 python3 -m venv .venv
 source .venv/bin/activate
@@ -139,6 +142,7 @@ Colab에서 기획표를 바꾸면 2번부터, 원본을 바꾸면 3번부터, �
 |---|---|
 | 파일을 찾을 수 없음 | 기획표와 원본의 이름·확장자가 같은지 확인 |
 | 영상 시간 오류 | 시작·끝을 모두 입력했는지, 원본 길이 안의 구간인지 확인 |
+| 기획표 첫 행에 ‘파일’ 열이 필요함 | 첫 줄의 표 이름·빈 줄을 제거. Numbers CSV 내보내기에서 ‘표 이름 포함’ 해제 |
 | 기획표 행 오류 | 열 이름을 유지했는지, 파일명이 비어 있지 않은지 확인 |
 | 다운로드 차단 | 업로드와 변환을 완료했는지, 성공 후 입력이나 결과가 바뀌지 않았는지 확인 |
 | 사진 읽기 실패 | JPG 또는 PNG로 내보낸 뒤 다시 시도 |
