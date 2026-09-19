@@ -387,6 +387,13 @@ def build(project: Path, layout: str, fit: str, timeline_path: Path, output: Pat
         ET.SubElement(node, "adjust-conform", {"type": fit})
         if clip.title:
             add_title(node, clip, i, layout == "portrait")
+        if clip.has_audio and not clip.include_audio:
+            # Explicitly deactivate every source channel, in addition to selecting
+            # video only. FCPXML places audio components after anchored titles.
+            ET.SubElement(node, "audio-channel-source", {
+                "srcCh": ", ".join(str(channel) for channel in range(1, clip.audio_channels + 1)),
+                "role": "dialogue", "active": "0",
+            })
         cursor += clip.duration
     ET.indent(root, space="  ")
     xml_path.write_text('<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE fcpxml>\n' + ET.tostring(root, encoding="unicode") + "\n", encoding="utf-8")
